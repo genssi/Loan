@@ -5,8 +5,13 @@ import Difference from './modules/difference';
 import Form from './modules/form';
 
 window.addEventListener('DOMContentLoaded', () => {
+
+    //Sliders
     const slider = new MainSlider({btns: '.next', container: '.page'});
     slider.render();
+
+    const modulePageSlider = new MainSlider({container: '.moduleapp', btns: '.next'});
+    modulePageSlider.render();
 
     const showUpSlider = new MiniSlider({
         container: '.showup__content-slider',
@@ -35,11 +40,16 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     feedSlider.init();
 
-    const player = new VideoPlayer('.showup .play', '.overlay');
-    player.init();
+    //Video Player
+    const player1 = new VideoPlayer('.showup .play', '.overlay');
+    player1.init();
+    const player2 = new VideoPlayer('.module__video-item .play', '.overlay');
+    player2.init();
 
+    //Difference
     new Difference(".officerold", ".officernew", ".officer__card-item").init();
 
+    //Form
     const form = new Form(".form");
     form.init();
 });

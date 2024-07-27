@@ -14,12 +14,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class Difference {
   constructor(oldOfficer, newOfficer, items) {
-    this.oldOfficer = document.querySelector(oldOfficer);
-    this.newOfficer = document.querySelector(newOfficer);
-    this.oldItems = this.oldOfficer.querySelectorAll(items);
-    this.newItems = this.newOfficer.querySelectorAll(items);
-    this.oldCounter = 0;
-    this.newCounter = 0;
+    try {
+      this.oldOfficer = document.querySelector(oldOfficer);
+      this.newOfficer = document.querySelector(newOfficer);
+      this.oldItems = this.oldOfficer.querySelectorAll(items);
+      this.newItems = this.newOfficer.querySelectorAll(items);
+      this.oldCounter = 0;
+      this.newCounter = 0;
+    } catch (e) {}
   }
   bindTriggers(container, items, counter) {
     container.querySelector('.plus').addEventListener("click", () => {
@@ -42,13 +44,131 @@ class Difference {
     });
   }
   init() {
-    this.hideItems(this.oldItems);
-    this.hideItems(this.newItems);
-    this.bindTriggers(this.oldOfficer, this.oldItems, this.oldCounter);
-    this.bindTriggers(this.newOfficer, this.newItems, this.newCounter);
+    try {
+      this.hideItems(this.oldItems);
+      this.hideItems(this.newItems);
+      this.bindTriggers(this.oldOfficer, this.oldItems, this.oldCounter);
+      this.bindTriggers(this.newOfficer, this.newItems, this.newCounter);
+    } catch (e) {}
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Difference);
+
+/***/ }),
+
+/***/ "./src/js/modules/form.js":
+/*!********************************!*\
+  !*** ./src/js/modules/form.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class Form {
+  constructor(forms) {
+    this.forms = document.querySelectorAll(forms);
+    this.inputs = document.querySelectorAll("input");
+    this.message = {
+      loading: 'Loading...',
+      success: 'Form submitted successfully!',
+      failure: 'Error occurred while form submission.'
+    };
+    this.path = 'assets/question.php';
+  }
+  async postData(url, data) {
+    let res = await fetch(url, {
+      method: 'POST',
+      body: data
+    });
+    return await res.text();
+  }
+  clearInputs() {
+    this.inputs.forEach(input => {
+      input.value = "";
+    });
+  }
+  checkMailInputs() {
+    const mailInputs = document.querySelectorAll("[type='email']");
+    mailInputs.forEach(input => {
+      input.addEventListener("keypress", function (e) {
+        if (e.key.match(/[^a-z 0-9 @ \.]/ig)) {
+          e.preventDefault();
+        }
+      });
+    });
+  }
+  mask() {
+    let setCursorPosition = (pos, elem) => {
+      elem.focus();
+      if (elem.setSelectionRange) {
+        elem.setSelectionRange(pos, pos);
+      } else if (elem.createTextRange) {
+        let range = elem.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', pos);
+        range.moveStart('character', pos);
+        range.select();
+      }
+    };
+    function createMask(event) {
+      let matrix = "+1 (___) ___-____";
+      let i = 0;
+      let def = matrix.replace(/\D/g, "");
+      let val = this.value.replace(/\D/g, "");
+      if (def.length >= val.length) {
+        val = def;
+      }
+      this.value = matrix.replace(/./g, function (a) {
+        return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? "" : a;
+      });
+      if (event.type === 'blur') {
+        if (this.value.length == 2) {
+          this.value = '';
+        }
+      } else {
+        setCursorPosition(this.value.length, this);
+      }
+    }
+    let inputs = document.querySelectorAll("[name='phone']");
+    inputs.forEach(input => {
+      input.addEventListener('input', createMask);
+      input.addEventListener('focus', createMask);
+      input.addEventListener('blur', createMask);
+    });
+  }
+  init() {
+    this.checkMailInputs();
+    this.mask();
+    this.forms.forEach(form => {
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        let statusMessage = document.createElement('div');
+        statusMessage.style.cssText = `
+                    margin-top: 15px;
+                    font-size: 18px;
+                    color: grey;
+                `;
+        form.parentNode.appendChild(statusMessage);
+        statusMessage.textContent = this.message.loading;
+        const formData = new FormData(form);
+        this.postData(this.path, formData).then(res => {
+          console.log(res);
+          statusMessage.textContent = this.message.success;
+        }).catch(err => {
+          statusMessage.textContent = this.message.failure;
+        }).finally(() => {
+          this.clearInputs();
+          setTimeout(() => {
+            statusMessage.remove();
+          }, 6000);
+        });
+      });
+    });
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Form);
 
 /***/ }),
 
@@ -66,42 +186,80 @@ class VideoPlayer {
   constructor(triggers, overlay) {
     this.btns = document.querySelectorAll(triggers);
     this.overlay = document.querySelector(overlay);
-    this.close = this.overlay.querySelector('.close');
+    this.close = this.overlay.querySelector(".close");
+    this.onPlayerStateChange = this.onPlayerStateChange.bind(this);
   }
   bindTriggers() {
-    this.btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (document.querySelector('iframe#frame')) {
-          this.overlay.style.display = 'flex';
-        } else {
-          const path = btn.getAttribute('data-url');
-          this.createPlayer(path);
+    this.btns.forEach((btn, i) => {
+      try {
+        const blockedElem = btn.closest(".module__video-item").nextElementSibling;
+        if (i % 2 == 0) {
+          blockedElem.setAttribute("data-disabled", "true");
+        }
+      } catch (e) {}
+      btn.addEventListener("click", () => {
+        if (!btn.closest(".module__video-item") || btn.closest(".module__video-item").getAttribute("data-disabled") !== "true") {
+          this.activeBtn = btn;
+          if (document.querySelector("iframe#frame")) {
+            this.overlay.style.display = "flex";
+            if (this.path !== btn.getAttribute("data-url")) {
+              this.path = btn.getAttribute("data-url");
+              this.player.loadVideoById({
+                videoId: this.path
+              });
+            }
+          } else {
+            this.path = btn.getAttribute("data-url");
+            this.createPlayer(this.path);
+          }
         }
       });
     });
   }
   bindCloseBtn() {
-    this.close.addEventListener('click', () => {
-      this.overlay.style.display = 'none';
+    this.close.addEventListener("click", () => {
+      this.overlay.style.display = "none";
       this.player.stopVideo();
     });
   }
   createPlayer(url) {
-    this.player = new YT.Player('frame', {
-      height: '100%',
-      width: '100%',
-      videoId: `${url}`
+    this.player = new YT.Player("frame", {
+      height: "100%",
+      width: "100%",
+      videoId: `${url}`,
+      events: {
+        onStateChange: this.onPlayerStateChange
+      }
     });
-    console.log(this.player);
-    this.overlay.style.display = 'flex';
+    this.overlay.style.display = "flex";
+  }
+  onPlayerStateChange(state) {
+    try {
+      const blockedElem = this.activeBtn.closest(".module__video-item").nextElementSibling;
+      const playBtn = this.activeBtn.querySelector("svg").cloneNode(true);
+      if (state.data === 0) {
+        if (blockedElem.querySelector(".play__circle").classList.contains("closed")) {
+          blockedElem.querySelector(".play__circle").classList.remove("closed");
+          blockedElem.querySelector("svg").remove();
+          blockedElem.querySelector(".play__circle").appendChild(playBtn);
+          blockedElem.querySelector(".play__text").textContent = "play video";
+          blockedElem.querySelector(".play__text").classList.remove("attention");
+          blockedElem.style.opacity = 1;
+          blockedElem.style.filter = "none";
+          blockedElem.setAttribute("data-disabled", "false");
+        }
+      }
+    } catch (e) {}
   }
   init() {
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    this.bindTriggers();
-    this.bindCloseBtn();
+    if (this.btns.length > 0) {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      this.bindTriggers();
+      this.bindCloseBtn();
+    }
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (VideoPlayer);
@@ -142,17 +300,14 @@ class MainSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
     } catch (e) {}
     this.slides.forEach(slide => {
       slide.style.display = "none";
-      slide.classList.add("animated", "fadeInUp");
+      slide.classList.add("animated", "fadeIn");
     });
     this.slides[this.slideIndex - 1].style.display = "block";
   }
   plusSlides(n) {
     this.showSlides(this.slideIndex += n);
   }
-  render() {
-    try {
-      this.hanson = document.querySelector(".hanson");
-    } catch (e) {}
+  bindTriggers() {
     this.btns.forEach(item => {
       item.addEventListener("click", () => {
         this.plusSlides(1);
@@ -163,7 +318,29 @@ class MainSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
         this.showSlides(this.slideIndex);
       });
     });
-    this.showSlides(this.slideIndex);
+    document.querySelectorAll('.prevmodule').forEach(item => {
+      item.addEventListener("click", e => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.plusSlides(-1);
+      });
+    });
+    document.querySelectorAll('.nextmodule').forEach(item => {
+      item.addEventListener("click", e => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.plusSlides(1);
+      });
+    });
+  }
+  render() {
+    if (this.container) {
+      try {
+        this.hanson = document.querySelector(".hanson");
+      } catch (e) {}
+      this.showSlides(this.slideIndex);
+      this.bindTriggers();
+    }
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MainSlider);
@@ -243,17 +420,19 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
     });
   }
   init() {
-    this.container.style.cssText = `
+    try {
+      this.container.style.cssText = `
             display: flex;
             flex-wrap: wrap;
             overflow: hidden;
             align-items: flex-start;
-        `;
-    this.bindTriggers();
-    this.decorizeSlides();
-    if (this.autoplay) {
-      setInterval(() => this.nextSlide(), 5000);
-    }
+            `;
+      this.bindTriggers();
+      this.decorizeSlides();
+      if (this.autoplay) {
+        setInterval(() => this.nextSlide(), 5000);
+      }
+    } catch (e) {}
   }
 }
 
@@ -280,7 +459,9 @@ class Slider {
     autoplay
   } = {}) {
     this.container = document.querySelector(container);
-    this.slides = Array.from(this.container.children);
+    try {
+      this.slides = Array.from(this.container.children);
+    } catch (e) {}
     this.btns = document.querySelectorAll(btns);
     this.prev = document.querySelector(prev);
     this.next = document.querySelector(next);
@@ -359,16 +540,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/slider/slider-mini */ "./src/js/modules/slider/slider-mini.js");
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
 /* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
+/* harmony import */ var _modules_form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/form */ "./src/js/modules/form.js");
+
 
 
 
 
 window.addEventListener('DOMContentLoaded', () => {
+  //Sliders
   const slider = new _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__["default"]({
     btns: '.next',
     container: '.page'
   });
   slider.render();
+  const modulePageSlider = new _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    container: '.moduleapp',
+    btns: '.next'
+  });
+  modulePageSlider.render();
   const showUpSlider = new _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__["default"]({
     container: '.showup__content-slider',
     prev: '.showup__prev',
@@ -393,9 +582,19 @@ window.addEventListener('DOMContentLoaded', () => {
     activeClass: 'feed__item-active'
   });
   feedSlider.init();
-  const player = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.showup .play', '.overlay');
-  player.init();
+
+  //Video Player
+  const player1 = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.showup .play', '.overlay');
+  player1.init();
+  const player2 = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.module__video-item .play', '.overlay');
+  player2.init();
+
+  //Difference
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"](".officerold", ".officernew", ".officer__card-item").init();
+
+  //Form
+  const form = new _modules_form__WEBPACK_IMPORTED_MODULE_4__["default"](".form");
+  form.init();
 });
 /******/ })()
 ;
