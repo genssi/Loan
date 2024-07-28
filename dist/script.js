@@ -85,6 +85,46 @@ class Difference {
 
 /***/ }),
 
+/***/ "./src/js/modules/download.js":
+/*!************************************!*\
+  !*** ./src/js/modules/download.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class Download {
+  constructor(btns) {
+    this.btns = document.querySelectorAll(btns);
+    this.path = 'assets/img/mainbg.jpg';
+  }
+  downloadItem(path) {
+    const element = document.createElement('a');
+    element.setAttribute('href', path);
+    element.setAttribute('download', 'nice-picture');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+  init() {
+    this.btns.forEach(btn => {
+      btn.addEventListener("mouseenter", () => {
+        btn.style.cursor = 'pointer';
+      });
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        this.downloadItem(this.path);
+      });
+    });
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Download);
+
+/***/ }),
+
 /***/ "./src/js/modules/form.js":
 /*!********************************!*\
   !*** ./src/js/modules/form.js ***!
@@ -571,6 +611,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
 /* harmony import */ var _modules_form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/form */ "./src/js/modules/form.js");
 /* harmony import */ var _modules_accordion_mini__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/accordion-mini */ "./src/js/modules/accordion-mini.js");
+/* harmony import */ var _modules_download__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/download */ "./src/js/modules/download.js");
+
 
 
 
@@ -620,14 +662,17 @@ window.addEventListener('DOMContentLoaded', () => {
   const player2 = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.module__video-item .play', '.overlay');
   player2.init();
 
-  //Difference
+  //Accordion difference
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"](".officerold", ".officernew", ".officer__card-item").init();
-  //Accordion
+  //Accordion mini
   new _modules_accordion_mini__WEBPACK_IMPORTED_MODULE_5__["default"](".plus").init();
 
   //Form
   const form = new _modules_form__WEBPACK_IMPORTED_MODULE_4__["default"](".form");
   form.init();
+
+  //Download file.
+  new _modules_download__WEBPACK_IMPORTED_MODULE_6__["default"](".download").init();
 });
 /******/ })()
 ;

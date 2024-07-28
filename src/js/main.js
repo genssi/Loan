@@ -4,6 +4,7 @@ import VideoPlayer from './modules/playVideo';
 import Difference from './modules/difference';
 import Form from './modules/form';
 import AccordionMini from './modules/accordion-mini';
+import Download from './modules/download';
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -47,12 +48,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const player2 = new VideoPlayer('.module__video-item .play', '.overlay');
     player2.init();
 
-    //Difference
+    //Accordion difference
     new Difference(".officerold", ".officernew", ".officer__card-item").init();
-    //Accordion
+    //Accordion mini
     new AccordionMini(".plus").init();
 
     //Form
     const form = new Form(".form");
     form.init();
+
+    //Download file.
+    new Download(".download").init();
 });
