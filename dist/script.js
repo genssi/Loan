@@ -2,6 +2,35 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/js/modules/accordion-mini.js":
+/*!******************************************!*\
+  !*** ./src/js/modules/accordion-mini.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class AccordionMini {
+  constructor(btns) {
+    this.btns = document.querySelectorAll(btns);
+  }
+  init() {
+    this.btns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sibling = btn.closest(".module__info-show").nextElementSibling;
+        sibling.classList.toggle("msg");
+        sibling.style.marginTop = "20px";
+        sibling.classList.add("animated", "fadeInUp");
+      });
+    });
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AccordionMini);
+
+/***/ }),
+
 /***/ "./src/js/modules/difference.js":
 /*!**************************************!*\
   !*** ./src/js/modules/difference.js ***!
@@ -541,6 +570,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
 /* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
 /* harmony import */ var _modules_form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/form */ "./src/js/modules/form.js");
+/* harmony import */ var _modules_accordion_mini__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/accordion-mini */ "./src/js/modules/accordion-mini.js");
+
 
 
 
@@ -591,6 +622,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   //Difference
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"](".officerold", ".officernew", ".officer__card-item").init();
+  //Accordion
+  new _modules_accordion_mini__WEBPACK_IMPORTED_MODULE_5__["default"](".plus").init();
 
   //Form
   const form = new _modules_form__WEBPACK_IMPORTED_MODULE_4__["default"](".form");
